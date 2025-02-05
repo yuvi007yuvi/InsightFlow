@@ -4,115 +4,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Feedback - InsightFlow</title>
+    <title>Show Feedback - InsightFlow</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script type="module">
-        // Import Firebase SDK modules
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js';
-        import { getDatabase, ref, onChildAdded } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js';
+    
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB8XIXxe2cBliFB4HN2C8GsYpQ1beErPv8",
-            authDomain: "insightflow-81a03.firebaseapp.com",
-            databaseURL: "https://insightflow-81a03-default-rtdb.firebaseio.com",
-            projectId: "insightflow-81a03",
-            storageBucket: "insightflow-81a03.firebasestorage.app",
-            messagingSenderId: "111041243564",
-            appId: "1:111041243564:web:f9348e510ea7e1e7e13209",
-            measurementId: "G-P0HQ3MXXV1"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // Fetch and display feedback
-        const feedbackList = document.getElementById('feedbackList');
-
-        onChildAdded(ref(db, 'feedbacks'), (snapshot) => {
-            const feedback = snapshot.val();
-            const feedbackHTML = `
-                <div class="col-md-4 mb-4">
-                    <div class="card feedback-card">
-                        <div class="card-body">
-                            <h5 class="card-title">${feedback.name} <small class="text-muted">(${feedback.designation})</small></h5>
-                            <p class="card-text">${feedback.feedback}</p>
-                            <footer class="blockquote-footer">${feedback.email}</footer>
-                            <div class="star-rating">
-                                ${generateStars(feedback.stars)}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            feedbackList.innerHTML += feedbackHTML;
-        });
-
-        // Function to generate the star rating
-        function generateStars(stars) {
-            let starHTML = '';
-            for (let i = 0; i < stars; i++) {
-                starHTML += '<span class="star">&#9733;</span>';
-            }
-            for (let i = stars; i < 5; i++) {
-                starHTML += '<span class="star" style="color: #ccc;">&#9733;</span>';
-            }
-            return starHTML;
-        }
-    </script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #3b4b5b, #00d2ff);
-            color: #fff;
+            background: #f4f4f4;
+            color: #333;
             margin: 0;
         }
 
         .navbar {
-            background: rgba(0, 0, 0, 0.7);
+            background: #00457C;
         }
 
         .navbar-brand {
             font-size: 1.8rem;
-            color: #00d2ff !important;
+            color: #fff !important;
         }
 
-        .feedback-card {
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            margin: 20px 0;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
+        .review-card {
+            background: #fff;
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .feedback-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+        .review-card h5 {
+            color: #00457C;
         }
 
-        .card-body h5 {
-            color: #00d2ff;
+        .designation-section {
+            margin-top: 30px;
         }
 
-        .star-rating {
-            display: flex;
-            justify-content: start;
-        }
-
-        .star {
-            font-size: 1.5rem;
-            color: #ffcc00;
-        }
-
-        .star + .star {
-            margin-left: 5px;
+        .count {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
 
         footer {
             background-color: #111;
-            color: #888;
+            color: #bbb;
             padding: 20px;
             text-align: center;
             font-size: 0.9rem;
@@ -121,6 +61,7 @@
         .container {
             max-width: 1200px;
         }
+
     </style>
 </head>
 
@@ -133,12 +74,12 @@
         </div>
     </nav>
 
-    <!-- Feedback Display Section -->
+    <!-- Reviews Section -->
     <div class="container my-5">
-        <h2 class="text-center mb-4">View Feedback</h2>
-        <div id="feedbackList" class="row">
-            <!-- Feedback Cards will be injected here -->
-        </div>
+        <h2 class="text-center mb-4">Feedback Reviews</h2>
+
+        <!-- Dynamic Designation Based Reviews -->
+        <div id="reviewsContainer"></div>
     </div>
 
     <!-- Footer Section -->
@@ -146,9 +87,87 @@
         <p>&copy; 2025 InsightFlow. All Rights Reserved.</p>
     </footer>
 
-    <!-- Firebase and Bootstrap Scripts (Ensure Firebase is using ES modules) -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <!-- Firebase and Bootstrap Scripts -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB8XIXxe2cBliFB4HN2C8GsYpQ1beErPv8",
+            authDomain: "insightflow-81a03.firebaseapp.com",
+            databaseURL: "https://insightflow-81a03-default-rtdb.firebaseio.com",
+            projectId: "insightflow-81a03",
+            storageBucket: "insightflow-81a03.appspot.com",
+            messagingSenderId: "111041243564",
+            appId: "1:111041243564:web:f9348e510ea7e1e7e13209",
+            measurementId: "G-P0HQ3MXXV1"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Load reviews and group them by designation
+        function loadReviews() {
+            db.ref('feedbacks').once('value', (snapshot) => {
+                const reviewsData = snapshot.val();
+                if (!reviewsData) return;
+
+                // Group reviews by designation
+                const groupedReviews = {
+                    "Project Head": [],
+                    "Operations Manager": [],
+                    "Zonal Manager": [],
+                    "Supervisor": [],
+                    "Colleague": []
+                };
+
+                for (let key in reviewsData) {
+                    const review = reviewsData[key];
+                    if (groupedReviews[review.designation]) {
+                        groupedReviews[review.designation].push(review);
+                    }
+                }
+
+                const reviewsContainer = document.getElementById('reviewsContainer');
+                reviewsContainer.innerHTML = ''; // Clear the container
+
+                // Loop through each designation group and display reviews
+                for (let designation in groupedReviews) {
+                    const reviews = groupedReviews[designation];
+                    const count = reviews.length;
+
+                    if (count > 0) {
+                        // Designation header
+                        const designationSection = document.createElement('div');
+                        designationSection.classList.add('designation-section');
+                        
+                        // Title with count
+                        const countElement = document.createElement('div');
+                        countElement.classList.add('count');
+                        countElement.textContent = `${designation} (${count} Reviews)`;
+                        
+                        designationSection.appendChild(countElement);
+
+                        // Review Cards
+                        reviews.forEach((review) => {
+                            const reviewCard = document.createElement('div');
+                            reviewCard.classList.add('review-card');
+                            reviewCard.innerHTML = `
+                                <h5>${review.name}</h5>
+                                <p><strong>Email:</strong> ${review.email}</p>
+                                <p><strong>Feedback:</strong> ${review.feedback}</p>
+                            `;
+                            designationSection.appendChild(reviewCard);
+                        });
+
+                        reviewsContainer.appendChild(designationSection);
+                    }
+                }
+            });
+        }
+
+        // Load reviews when the page loads
+        window.onload = loadReviews;
+    </script>
 
 </body>
 
