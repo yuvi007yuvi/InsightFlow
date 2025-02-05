@@ -7,32 +7,32 @@
     <title>Submit Feedback - InsightFlow</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Firebase Scripts (v8.x.x for simpler integration) -->
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #3b4b5b, #00d2ff);
-            color: #fff;
+            background: #f4f4f4;
+            color: #333;
             margin: 0;
         }
 
         .navbar {
-            background: rgba(0, 0, 0, 0.7);
+            background: #00457C;
         }
 
         .navbar-brand {
             font-size: 1.8rem;
-            color: #00d2ff !important;
+            color: #fff !important;
         }
 
         .feedback-form {
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
+            background: #ffffff;
             padding: 30px;
-            border-radius: 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
         }
 
@@ -40,34 +40,31 @@
             margin-bottom: 15px;
         }
 
-        .feedback-card {
-            background: rgba(0, 0, 0, 0.7);
-            color: #fff;
-            margin: 20px 0;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
+        .form-label {
+            font-weight: bold;
+            color: #555;
         }
 
-        .feedback-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+        .btn-primary {
+            background-color: #00457C;
+            border-color: #00457C;
         }
 
-        .card-body h5 {
-            color: #00d2ff;
+        .btn-primary:hover {
+            background-color: #00375A;
+            border-color: #00375A;
         }
 
         footer {
             background-color: #111;
-            color: #888;
+            color: #bbb;
             padding: 20px;
             text-align: center;
             font-size: 0.9rem;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 800px;
         }
 
         .alert {
@@ -94,17 +91,17 @@
                 <input type="text" class="form-control" id="name" required>
             </div>
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" required>
+                <label for="email" class="form-label">Email (Optional)</label>
+                <input type="email" class="form-control" id="email">
             </div>
             <div class="mb-3">
                 <label for="designation" class="form-label">Designation</label>
                 <select class="form-select" id="designation" required>
-                    <option value="Student">PROJECT HEAD</option>
-                    <option value="Professional">OPERATION MANAGER</option>
-                    <option value="Teacher">ZONAL</option>
-                    <option value="Developer">SUPERVISOR</option>
-                    <option value="Other">COLLEAGUE</option>
+                    <option value="Project Head">Project Head</option>
+                    <option value="Operations Manager">Operations Manager</option>
+                    <option value="Zonal Manager">Zonal Manager</option>
+                    <option value="Supervisor">Supervisor</option>
+                    <option value="Colleague">Colleague</option>
                 </select>
             </div>
             <div class="mb-3">
@@ -133,7 +130,7 @@
             authDomain: "insightflow-81a03.firebaseapp.com",
             databaseURL: "https://insightflow-81a03-default-rtdb.firebaseio.com",
             projectId: "insightflow-81a03",
-            storageBucket: "insightflow-81a03.firebasestorage.app",
+            storageBucket: "insightflow-81a03.appspot.com",
             messagingSenderId: "111041243564",
             appId: "1:111041243564:web:f9348e510ea7e1e7e13209",
             measurementId: "G-P0HQ3MXXV1"
@@ -155,16 +152,10 @@
             const designation = document.getElementById('designation').value;
             const feedback = document.getElementById('feedback').value;
 
-            // Validate that all fields are filled out
-            if (!name || !email || !designation || !feedback) {
-                alert('Please fill all the fields.');
-                return;
-            }
-
             // Save to Firebase
             db.ref('feedbacks').push({
                 name: name,
-                email: email,
+                email: email || "Not provided", // If email is empty, set to "Not provided"
                 designation: designation,
                 feedback: feedback
             }).then(() => {
@@ -179,8 +170,6 @@
                 alert('Something went wrong. Please try again.');
             });
         });
-
-        
     </script>
 </body>
 
